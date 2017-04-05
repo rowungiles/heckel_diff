@@ -1,153 +1,233 @@
 #include "algorithm.hpp"
+#include <algorithm>
+#include <iostream>
 
-#include <vector>
-#include <unordered_map>
+/* http://documents.scribd.com/docs/10ro9oowpo1h81pgh1as.pdf
+ * This algorithm handles dupes poorly. Be sure to operate on values that can provide a hash.
+ */
 
-struct Entry {
+static const std::string INSERTED = "inserted";
+static const std::string DELETED = "deleted";
+static const std::string MOVED = "moved";
+static const std::string UNCHANGED = "unchanged";
 
-    enum Type: char {
-        SymbolTableEntry = 0,
-        LineNumber
-    };
+//  make references to all new items
+template<typename T, typename U>
+void HeckelDiff<T, U>::pass1(const T &n, std::unordered_map<U, SymbolTableEntry*> &symbol_table, std::vector<Entry> &na) {
 
-private:
-    Type m_entry_type;
-    const SymbolTableEntry *m_symbolTableEntry; // either the lines SymbolTableEntry OR line number in the "file" N
-    uint32_t m_lineNumber = 0;
+    for (const auto &item : n) {
 
-public:
-    const Type &entry_type = m_entry_type;
-    const SymbolTableEntry *&symbolTableEntry = m_symbolTableEntry;
-    const uint32_t &lineNumber = m_lineNumber;
+        auto entry = symbol_table[item] ? : new SymbolTableEntry();
 
-    void updateEntryToSymbolTable(const SymbolTableEntry *&symbolTableEntry) {
-        m_symbolTableEntry = symbolTableEntry;
-        m_entry_type = SymbolTableEntry;
+        entry->nc_increment();
+        
+        symbol_table[item] = entry;
+
+        na.push_back(Entry(entry, item));
+    }
+}
+
+//  make references to all old items
+template<typename T, typename U>
+void HeckelDiff<T, U>::pass2(const T &o, std::unordered_map<U, SymbolTableEntry*> &symbol_table, std::vector<Entry> &oa) {
+
+    uint32_t i = 0;
+
+    for (const auto &item : o) {
+
+        auto entry = symbol_table[item] ? : new SymbolTableEntry();
+
+        entry->oc_increment();
+
+        entry->update_olno(i);
+
+        symbol_table[item] = entry;
+
+        oa.push_back(Entry(entry, item));
+
+        i+=1;
+    }
+}
+
+/*
+ * If a line occurs only once in each file, then it must be the same line, although it may have been moved.
+ * We use this observation to locate unaltered lines that we subsequently exclude from further treatment.
+ *
+ * eg. find items that haven't moved
+ */
+template<typename T, typename U>
+void HeckelDiff<T, U>::pass3(std::vector<Entry> &na, std::vector<Entry> &oa) {
+
+    uint32_t i = 0;
+
+    for (auto &item : na) {
+
+        if (item.m_type == Entry::SymbolEntry) {
+
+            auto symbol = item.m_symbol_table_entry;
+
+            if (symbol->m_nc == symbol->m_oc == SymbolTableEntry::One) {
+
+                oa[symbol->m_olno].set_line_number(i);
+                item.set_line_number(symbol->m_olno);
+            }
+        }
+
+        i+=1;
+    }
+}
+
+static void process_items_ascending(Entry &item, std::vector<Entry> &na, std::vector<Entry> &oa) {
+
+    auto line_number = item.m_line_number;
+
+    auto old_entry = oa[line_number];
+    auto old_line_number = old_entry.m_line_number;
+
+    if (line_number != old_entry.m_line_number) {
+        return;
     }
 
-    void updateEntryToLineNumber(const uint32_t lineNumber) {
-        m_lineNumber = lineNumber;
-        m_entry_type = LineNumber;
+    if (na[line_number+1].m_symbol_table_entry != oa[old_line_number+1].m_symbol_table_entry) {
+        return;
     }
-};
 
-class SymbolTableEntry final {
+    na[line_number+1].set_line_number(old_line_number+1);
+    oa[old_line_number+1].set_line_number(line_number+1);
+}
 
-private:
-    uint32_t ocCount = 0;
-    uint32_t ncCount = 0;
+template<typename T, typename U>
+void HeckelDiff<T, U>::pass4(std::vector<Entry> &na, std::vector<Entry> &oa) {
 
-    Counter m_oc = Zero;
-    Counter m_nc = Zero;
-    uint32_t m_olno = 0;
+    for (auto &item : na) {
 
-public:
-    enum Counter: char {
-        Zero = 0,
-        One,
-        Many
-    };
-
-    const Counter &oc = m_oc;
-    const Counter &nc = m_nc;
-
-    const uint32_t &olno = m_olno; // of interest only if OC=1.
-
-    void ncIncrement() {
-
-        switch (++ncCount) {
-            case 0:
-                m_nc = Zero;
-            case 1:
-                m_nc = One;
+        switch (item.m_type) {
+            case Entry::SymbolEntry:
+                process_items_ascending(item, na, oa);
+                break;
+            case Entry::LineNumber:
             default:
-                m_nc = Many;
+                break;
         }
     }
+}
 
-    void ocIncrement() {
+static void process_items_decending(Entry &entry, std::vector<Entry> &na, std::vector<Entry> &oa) {
 
-        switch (++ocCount) {
-            case 0:
-                m_oc = Zero;
-            case 1:
-                m_oc = One;
+    auto line_number = entry.m_line_number;
+
+    auto old_entry = oa[line_number];
+    auto old_line_number = old_entry.m_line_number;
+
+    if (line_number == 0 || old_line_number == 0) {
+        return;
+    }
+
+    if (line_number != old_entry.m_line_number) {
+        return;
+    }
+
+    if (na[line_number-1].m_symbol_table_entry != oa[old_line_number-1].m_symbol_table_entry) {
+        return;
+    }
+
+    na[line_number-1].set_line_number(old_line_number-1);
+    oa[old_line_number-1].set_line_number(line_number-1);
+}
+
+template<typename T, typename U>
+void HeckelDiff<T, U>::pass5(std::vector<Entry> &na, std::vector<Entry> &oa) {
+
+    uint32_t na_size = na.size();
+
+    for (uint32_t i = na_size; i > 0; --i) {
+
+        auto entry = na[i];
+        switch (entry.m_type) {
+            case Entry::SymbolEntry:
+                process_items_decending(entry, na, oa);
+                break;
+            case Entry::LineNumber:
             default:
-                m_oc = Many;
+                break;
         }
     }
+}
 
-    void updateOLNO(uint32_t number) {
-        m_olno = number;
+template<typename T, typename U>
+static void check_following_block_for_deleted(const std::vector<Entry> &oa, const T &o, std::vector<U> &deleted, uint32_t &start) {
+
+    for (uint32_t j = start; j < oa.size(); ++j) {
+
+        start = std::max(start, j);
+
+        auto entry = oa[j];
+
+        if (entry.m_type != Entry::SymbolEntry) {
+            return;
+        }
+
+        deleted.push_back(o[j]);
     }
-};
+}
 
-// TODO: how to handle duplicate "lines"
-void HeckelDiff::pass1(const std::string &n) {
+template<typename T, typename U>
+std::unordered_map<std::string, std::vector<U>> HeckelDiff<T, U>::pass6(const T &n, const T &o, std::vector<Entry> &na, std::vector<Entry> &oa) {
 
-    for (uint32_t i = 0; i < n.length(); ++i) {
+    std::vector<U> inserted;
+    std::vector<U> unchanged;
+    std::vector<U> moved;
+    std::vector<U> deleted;
+
+    uint32_t i = 0;
+    uint32_t j = 0;
+
+    for (const auto &entry : na) {
+
+        auto old_entry = oa[i];
 
         auto item = n[i];
 
-        if (symbolTable.find(item) == symbolTable.end()) {
+        switch (entry.m_type) {
 
-            auto entry = new SymbolTableEntry();
-            symbolTable[item] = entry;
+            case Entry::SymbolEntry: {
+
+                inserted.push_back(item);
+
+                j = std::max(i, j);
+
+                break;
+            }
+
+            case Entry::LineNumber: {
+
+                if (entry.m_line_number == old_entry.m_line_number) {
+
+                    unchanged.push_back(item);
+
+                } else {
+
+                    moved.push_back(item);
+                }
+
+                check_following_block_for_deleted(oa, o, deleted, j+=1);
+
+                break;
+            }
+
+            default:
+                break;
         }
 
-        symbolTable[item]->ncIncrement();
-
-        na[i].updateEntryToSymbolTable(*symbolTable[item]);
-    }
-}
-
-void HeckelDiff::pass2(const std::string &o) {
-
-    for (uint32_t i = 0; i < o.length(); ++i) {
-
-        auto item = o[i];
-
-        if (symbolTable.find(item) == symbolTable.end()) {
-
-            auto entry = new SymbolTableEntry();
-            symbolTable[item] = entry;
-        }
-
-        symbolTable[item]->ocIncrement();
-
-        oa[i].updateEntryToSymbolTable(*symbolTable[item]);
-
-        symbolTable[item]->updateOLNO(i);
-    }
-}
-
-//A line that occurs once and only once in each file must be the same line (unchanged but possibly moved).
-void HeckelDiff::pass3(const std::string &n) {
-
-    for (uint32_t i = 0; i < n.size(); ++i) {
-
-        auto symbol = symbolTable[n[i]];
-
-        if (symbol->nc == symbol->oc == SymbolTableEntry::One) {
-
-            symbol->updateOLNO(i);
-            na[i].updateEntryToLineNumber(symbol->olno);
-        }
+        i+=1;
     }
 
-    // TODO: "Find" unique virtual lines immediately before the first and immediately after the last lines of the files????
+    return {
+            {INSERTED, inserted},
+            {DELETED, deleted},
+            {MOVED, moved},
+            {UNCHANGED, unchanged}
+    };
 }
 
-// If a line has been found to be unaltered, and the lines immediately adjacent to it in both files are identical, then these lines must be the same line. This information can be used to find blocks of unchanged lines.
-void HeckelDiff::pass4(const std::string &n) {
-
-}
-
-bool HeckelDiff::diff(std::string o, std::string n) {
-
-    pass1(n);
-    pass2(o);
-    pass3(n);
-
-    return true;
-}
+template class HeckelDiff<std::string, char>;
