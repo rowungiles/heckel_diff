@@ -50,6 +50,7 @@ public:
 
 };
 
+template<typename T>
 class Entry final {
 
 public:
@@ -62,7 +63,7 @@ public:
 //    const uint32_t &line_number = m_line_number;
 //    const SymbolTableEntry *&symbol_table_entry = m_symbol_table_entry;
 
-    Entry(const SymbolTableEntry *symbol_table_entry, char debug) : m_symbol_table_entry(symbol_table_entry), m_debug(debug) {
+    Entry<T>(const SymbolTableEntry *symbol_table_entry, T value) : m_symbol_table_entry(symbol_table_entry), m_value(value) {
         m_type = SymbolEntry;
     }
 
@@ -71,27 +72,35 @@ public:
         m_type = LineNumber;
     }
 
+    bool operator==(const Entry<T>& rhs) {
+        return this->m_type == rhs.m_type && this->m_symbol_table_entry == rhs.m_symbol_table_entry;
+    }
+
+    bool operator!=(const Entry<T>& rhs) {
+        return this->m_type != rhs.m_type || this->m_symbol_table_entry != rhs.m_symbol_table_entry;
+    }
+
 //private:
     Type m_type = LineNumber;
     uint32_t m_line_number = 0;
     const SymbolTableEntry *m_symbol_table_entry = nullptr;
-    char m_debug = ' ';
+    T m_value;
 };
 
-template<typename T, typename U>
+template<typename T>
 class HeckelDiff {
 
 private:
-    std::unordered_map<U, SymbolTableEntry*> symbol_table;
-    std::vector<Entry> oa;
-    std::vector<Entry> na;
+    std::unordered_map<T, SymbolTableEntry*> symbol_table;
+    std::vector<Entry<T>> oa;
+    std::vector<Entry<T>> na;
 
-    void pass1(const T &n, std::unordered_map<U, SymbolTableEntry*> &symbolTable, std::vector<Entry> &na);
-    void pass2(const T &o, std::unordered_map<U, SymbolTableEntry*> &symbolTable, std::vector<Entry> &oa);
-    void pass3(std::vector<Entry> &na, std::vector<Entry> &oa);
-    void pass4(std::vector<Entry> &na, std::vector<Entry> &oa);
-    void pass5(std::vector<Entry> &na, std::vector<Entry> &oa);
-    std::unordered_map<std::string, std::vector<U>> pass6(const T &n, const T &o, std::vector<Entry> &na, std::vector<Entry> &oa);
+    void pass1(const std::vector<T> &n, std::unordered_map<T, SymbolTableEntry*> &symbolTable, std::vector<Entry<T>> &na);
+    void pass2(const std::vector<T> &o, std::unordered_map<T, SymbolTableEntry*> &symbolTable, std::vector<Entry<T>> &oa);
+    void pass3(std::vector<Entry<T>> &na, std::vector<Entry<T>> &oa);
+    void pass4(std::vector<Entry<T>> &na, std::vector<Entry<T>> &oa);
+    void pass5(std::vector<Entry<T>> &na, std::vector<Entry<T>> &oa);
+    std::unordered_map<std::string, std::vector<T>> pass6(std::vector<Entry<T>> &na, std::vector<Entry<T>> &oa);
 
 public:
 
@@ -104,11 +113,11 @@ public:
         symbol_table.clear();
     }
 
-    std::unordered_map<std::string, std::vector<U>> diff(const T original, const T updated) {
+    std::unordered_map<T, std::vector<T>> diff(const std::vector<T> original, const std::vector<T> updated) {
 
-        oa.reserve(original.length());
-        na.reserve(updated.length());
-        symbol_table.reserve(original.length() + updated.length());
+        oa.reserve(original.size());
+        na.reserve(updated.size());
+        symbol_table.reserve(original.size() + updated.size());
 
         pass1(updated, symbol_table, na);
         pass2(original, symbol_table, oa);
@@ -116,7 +125,7 @@ public:
         pass4(na, oa);
         pass5(na, oa);
 
-        return pass6(updated, original, na, oa);
+        return pass6(na, oa);
     }
 };
 
