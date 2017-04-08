@@ -1,6 +1,4 @@
 #include "algorithm.hpp"
-#include <algorithm>
-#include <iostream>
 
 /* http://documents.scribd.com/docs/10ro9oowpo1h81pgh1as.pdf
  * This algorithm handles dupes poorly. Be sure to operate on values that can provide a hash.
@@ -198,6 +196,8 @@ static void populate_deleted_items(const std::vector<Record<T>> &oa, std::vector
 template<typename T>
 static void populate_new_items(std::vector<Record<T>> &na, std::vector<Record<T>> &oa, std::vector<T> &inserted, std::vector<T> &unchanged, std::vector<T> &moved) {
 
+    uint32_t i = 0;
+
     for (auto &record : na) {
 
         if (record.index() == NotFound) {
@@ -206,16 +206,17 @@ static void populate_new_items(std::vector<Record<T>> &na, std::vector<Record<T>
 
         } else {
 
-            if (record == oa[record.index()] && record.index() == oa[record.index()].index()) {
+            if (record == oa[i]) {
 
                 unchanged.push_back(record.value());
 
             } else if (record.entry == oa[record.index()].entry) {
 
                 moved.push_back(record.value());
-
             }
         }
+
+        i+=1;
     }
 }
 

@@ -50,7 +50,7 @@ void checkExpectedType(const std::vector<T> *result, const std::vector<T> actual
     }
 }
 
-//  TODO (rowun): really, what I want is optionals. But can't use Boost on macOS Sierra right now, so pointers it is :(
+//  TODO: really, what I want is optionals. But can't use Boost on macOS Sierra right now, so pointers it is
 template <typename T>
 void testExpectations(const std::vector<T> &original, const std::vector<T> &updated,
                       std::vector<T> *expected_inserted,
@@ -275,7 +275,7 @@ TEST(HeckelDiff, IGListKitWhenSwappingObjectsThatResultHasMoves) {
     std::vector<uint32_t> original {1, 2};
     std::vector<uint32_t> updated {2, 1};
 
-    auto expected = new std::vector<uint32_t> {1, 2};
+    auto expected = new std::vector<uint32_t> {2, 1};
 
     testExpectations<uint32_t>(original, updated, nullptr, nullptr, expected, nullptr);
 
@@ -287,7 +287,7 @@ TEST(HeckelDiff, IGListKitWhenMovingObjectsTogetherThatResultHasMoves) {
     std::vector<uint32_t> original {1, 2, 3, 3, 4};
     std::vector<uint32_t> updated {2, 3, 1, 3, 4};
 
-    auto expected = new std::vector<uint32_t> {1, 2, 3};
+    auto expected = new std::vector<uint32_t> {2, 3, 1};
 
     testExpectations<uint32_t>(original, updated, nullptr, nullptr, expected, nullptr);
 
@@ -300,7 +300,7 @@ TEST(HeckelDiff, IGListKitWhenDeletingItemsWithInsertsWithMovesThatResultHasInse
     std::vector<uint32_t> updated  {0, 2, 3, 4, 7, 6, 9, 5, 10};
 
     auto expected_inserted = new std::vector<uint32_t> {9, 10};
-    auto expected_deleted = new std::vector<uint32_t> {1};
+    auto expected_deleted = new std::vector<uint32_t> {1, 8};
     auto expected_moved = new std::vector<uint32_t> {2, 3, 4, 7, 6, 5};
 
     testExpectations<uint32_t>(original, updated, expected_inserted, expected_deleted, expected_moved, nullptr);
