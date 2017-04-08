@@ -217,8 +217,6 @@ static void populate_new_items(std::vector<Entry<T>> &na, std::vector<Entry<T>> 
 
                 auto line_number = entry.m_line_number;
 
-//                auto symbol = entry.m_symbol_table_entry;
-
                 if (na[line_number] == oa[line_number]) {
 
                     unchanged.push_back(entry.m_value);

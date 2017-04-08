@@ -113,7 +113,7 @@ public:
         symbol_table.clear();
     }
 
-    std::unordered_map<T, std::vector<T>> diff(const std::vector<T> original, const std::vector<T> updated) {
+    std::unordered_map<std::string, std::vector<T>> diff(const std::vector<T> original, const std::vector<T> updated) {
 
         oa.reserve(original.size());
         na.reserve(updated.size());
