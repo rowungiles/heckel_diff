@@ -4,103 +4,118 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <stack>
+#include <limits>
 
-class SymbolTableEntry final {
+static const uintmax_t NotFound = UINT_MAX;
+
+class Entry final {
+
+private:
+    std::stack<uint32_t> m_all_olno;
+
+    uint32_t m_oc = 0;
+    uint32_t m_nc = 0;
 
 public:
-    enum Counter: char {
-        Zero = 0,
-        One,
-        Many
-    };
-
-//    const Counter &oc = m_oc;
-//    const Counter &nc = m_nc;
-//    const uint32_t &olno = m_olno;  // of interest only if OC=One.
-
-    void increment(Counter &counter) {
-        switch (counter) {
-            case Zero:
-                counter = One;
-                break;
-            default:
-                counter = Many;
-        }
+    Entry() {
+        push_olno(NotFound);
     }
+
     void nc_increment() {
-        increment(m_nc);
+        m_nc += 1;
     }
 
     void oc_increment() {
-        increment(m_oc);
+        m_oc += 1;
     }
 
-    void update_olno(uint32_t number) {
-        m_olno = number;
+    void oc_decrement() {
+        m_oc -= 1;
     }
 
-    bool operator==(const SymbolTableEntry& rhs) {
-        return this->m_nc == rhs.m_nc && this->m_oc == rhs.m_oc && this->m_olno == rhs.m_olno;
+    void pop_olno() {
+        m_all_olno.pop();
+    };
+
+    void push_olno(uint32_t index) {
+        m_all_olno.push(index);
     }
 
-//private:
-    Counter m_oc = Zero;
-    Counter m_nc = Zero;
-    uint32_t m_olno = 0;
+    auto olno() const {
+        return m_all_olno.top();
+    };
 
+    auto oc() const {
+        return m_oc;
+    }
+
+    auto nc() const {
+        return m_nc;
+    }
 };
 
 template<typename T>
-class Entry final {
+class Record final {
 
 public:
-    enum Type: char {
-        SymbolEntry,
+    enum Type {
+        SymbolTableEntry,
         LineNumber
     };
 
-//    const Type &type = m_type;
-//    const uint32_t &line_number = m_line_number;
-//    const SymbolTableEntry *&symbol_table_entry = m_symbol_table_entry;
+    class Entry *entry = nullptr;
 
-    Entry<T>(const SymbolTableEntry *symbol_table_entry, T value) : m_symbol_table_entry(symbol_table_entry), m_value(value) {
-        m_type = SymbolEntry;
+private:
+    T m_value;
+    Type m_type = SymbolTableEntry;
+    uint32_t m_index = NotFound;
+
+public:
+    Record<T>(class Entry *entry, T value) : entry(entry), m_value(value) {
+        m_type = SymbolTableEntry;
     }
 
-    void set_line_number(const uint32_t line_number) {
-        m_line_number = line_number;
+    bool operator==(const Record<T>& rhs) {
+        return this->m_type == rhs.m_type && this->entry == rhs.entry;
+    }
+
+    bool operator!=(const Record<T>& rhs) {
+        return this->m_type != rhs.m_type || this->entry != rhs.entry;
+    }
+
+    void set_index(const uint32_t index) {
+        m_index = index;
         m_type = LineNumber;
     }
 
-    bool operator==(const Entry<T>& rhs) {
-        return this->m_type == rhs.m_type && this->m_symbol_table_entry == rhs.m_symbol_table_entry;
+    auto type() const {
+        return m_type;
     }
 
-    bool operator!=(const Entry<T>& rhs) {
-        return this->m_type != rhs.m_type || this->m_symbol_table_entry != rhs.m_symbol_table_entry;
+    auto value() const {
+        return m_value;
     }
 
-//private:
-    Type m_type = LineNumber;
-    uint32_t m_line_number = 0;
-    const SymbolTableEntry *m_symbol_table_entry = nullptr;
-    T m_value;
+    auto index() const {
+        return m_index;
+    }
 };
 
 template<typename T>
 class HeckelDiff {
 
 private:
-    std::unordered_map<T, SymbolTableEntry*> symbol_table;
-    std::vector<Entry<T>> oa;
-    std::vector<Entry<T>> na;
+    std::unordered_map<T, Entry*> symbol_table;
+    std::vector<Record<T>> oa;
+    std::vector<Record<T>> na;
 
-    void pass1(const std::vector<T> &n, std::unordered_map<T, SymbolTableEntry*> &symbolTable, std::vector<Entry<T>> &na);
-    void pass2(const std::vector<T> &o, std::unordered_map<T, SymbolTableEntry*> &symbolTable, std::vector<Entry<T>> &oa);
-    void pass3(std::vector<Entry<T>> &na, std::vector<Entry<T>> &oa);
-    void pass4(std::vector<Entry<T>> &na, std::vector<Entry<T>> &oa);
-    void pass5(std::vector<Entry<T>> &na, std::vector<Entry<T>> &oa);
-    std::unordered_map<std::string, std::vector<T>> pass6(std::vector<Entry<T>> &na, std::vector<Entry<T>> &oa);
+    void pass1(const std::vector<T> &n, std::unordered_map<T, Entry*> &symbolTable, std::vector<Record<T>> &na);
+    void pass2(const std::vector<T> &o, std::unordered_map<T, Entry*> &symbolTable, std::vector<Record<T>> &oa);
+    void pass3(std::vector<Record<T>> &na, std::vector<Record<T>> &oa);
+    void pass4(std::vector<Record<T>> &na, std::vector<Record<T>> &oa);
+    void pass5(std::vector<Record<T>> &na, std::vector<Record<T>> &oa);
+    std::unordered_map<std::string, std::vector<T>> pass6(std::vector<Record<T>> &na, std::vector<Record<T>> &oa);
 
 public:
 

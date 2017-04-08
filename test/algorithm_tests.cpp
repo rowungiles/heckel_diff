@@ -4,14 +4,13 @@
 #include <vector>
 #include <unordered_map>
 #include <string>
-#include <memory>
 
 static const std::string INSERTED = "inserted";
 static const std::string DELETED = "deleted";
 static const std::string MOVED = "moved";
 static const std::string UNCHANGED = "unchanged";
 
-static std::vector<std::string> components_seperated_by_delimiter(const char delimiter, const std::string string) {
+static auto components_seperated_by_delimiter(const char delimiter, const std::string string) {
 
     uint32_t i = 0;
 
@@ -51,7 +50,6 @@ void checkExpectedType(const std::vector<T> *result, const std::vector<T> actual
     }
 }
 
-
 //  TODO (rowun): really, what I want is optionals. But can't use Boost on macOS Sierra right now, so pointers it is :(
 template <typename T>
 void testExpectations(const std::vector<T> &original, const std::vector<T> &updated,
@@ -80,7 +78,7 @@ TEST(HeckelDiff, CharactersInserted) {
     std::vector<std::string> original {"A", "X", "C", "Y", "D", "W", "E", "A", "E"};
     std::vector<std::string> updated {"A", "B", "C", "D", "E"};
 
-    auto expected_inserted = new std::vector<std::string> {"A", "B", "E"};
+    auto expected_inserted = new std::vector<std::string> {"B"};
 
     testExpectations<std::string>(original, updated, expected_inserted, nullptr, nullptr, nullptr);
 
@@ -104,7 +102,7 @@ TEST(HeckelDiff, CharactersMoved) {
     std::vector<std::string> original {"A", "X", "C", "Y", "D", "W", "E", "A", "E"};
     std::vector<std::string> updated {"A", "B", "C", "D", "E"};
 
-    auto expected_moved = new std::vector<std::string> {"D"};
+    auto expected_moved = new std::vector<std::string> {"A", "D", "E"};
 
     testExpectations<std::string>(original, updated, nullptr, nullptr, expected_moved, nullptr);
 
@@ -260,78 +258,78 @@ TEST(HeckelDiff, IGListKitWhenDiffingEmptyArraysThatResultHasNoChanges) {
     delete expected;
 }
 
-//TEST(HeckelDiff, IGListKitWhenDiffingFromEmptyArrayThatResultHasChanges) {
-//
-//    std::vector<uint32_t> original {};
-//    std::vector<uint32_t> updated {1};
-//
-//    auto expected = new std::vector<uint32_t> {1};
-//
-//    testExpectations<uint32_t>(original, updated, expected, nullptr, nullptr, nullptr);
-//
-//    delete expected;
-//}
-//
-//TEST(HeckelDiff, IGListKitWhenSwappingObjectsThatResultHasMoves) {
-//
-//    std::vector<uint32_t> original {1, 2};
-//    std::vector<uint32_t> updated {2, 1};
-//
-//    auto expected = new std::vector<uint32_t> {1, 2};
-//
-//    testExpectations<uint32_t>(original, updated, nullptr, nullptr, expected, nullptr);
-//
-//    delete expected;
-//}
-//
-//TEST(HeckelDiff, IGListKitWhenMovingObjectsTogetherThatResultHasMoves) {
-//
-//    std::vector<uint32_t> original {1, 2, 3, 3, 4};
-//    std::vector<uint32_t> updated {2, 3, 1, 3, 4};
-//
-//    auto expected = new std::vector<uint32_t> {1, 2, 3};
-//
-//    testExpectations<uint32_t>(original, updated, nullptr, nullptr, expected, nullptr);
-//
-//    delete expected;
-//}
-//
-//TEST(HeckelDiff, IGListKitWhenDeletingItemsWithInsertsWithMovesThatResultHasInsertsMovesAndDeletes) {
-//
-//    std::vector<uint32_t> original {0, 1, 2, 3, 4, 5, 6, 7, 8};
-//    std::vector<uint32_t> updated  {0, 2, 3, 4, 7, 6, 9, 5, 10};
-//
-//    auto expected_inserted = new std::vector<uint32_t> {9, 10};
-//    auto expected_deleted = new std::vector<uint32_t> {1};
-//    auto expected_moved = new std::vector<uint32_t> {2, 3, 4, 7, 6, 5};
-//
-//    testExpectations<uint32_t>(original, updated, expected_inserted, expected_deleted, expected_moved, nullptr);
-//
-//    delete expected_inserted;
-//    delete expected_deleted;
-//    delete expected_moved;
-//}
-//
-//TEST(HeckelDiff, IGListKitWhenInsertingObjectsWithArrayOfEqualObjectsThatChangeCountMatches) {
-//
-//    std::vector<std::string> original {"dog", "dog"};
-//    std::vector<std::string> updated  {"dog", "dog", "dog", "dog"};
-//
-//    auto expected = new std::vector<std::string> {"dog", "dog"};
-//
-//    testExpectations<std::string>(original, updated, expected, nullptr, nullptr, nullptr);
-//
-//    delete expected;
-//}
-//
-//TEST(HeckelDiff, IGListKitWhenDeletingObjectsWithArrayOfEqualObjectsThatChangeCountMatches) {
-//
-//    std::vector<std::string> original {"dog", "dog", "dog", "dog"};
-//    std::vector<std::string> updated  {"dog", "dog"};
-//
-//    auto expected = new std::vector<std::string> {"dog", "dog"};
-//
-//    testExpectations<std::string>(original, updated, nullptr, expected, nullptr, nullptr);
-//
-//    delete expected;
-//}
+TEST(HeckelDiff, IGListKitWhenDiffingFromEmptyArrayThatResultHasChanges) {
+
+    std::vector<uint32_t> original {};
+    std::vector<uint32_t> updated {1};
+
+    auto expected = new std::vector<uint32_t> {1};
+
+    testExpectations<uint32_t>(original, updated, expected, nullptr, nullptr, nullptr);
+
+    delete expected;
+}
+
+TEST(HeckelDiff, IGListKitWhenSwappingObjectsThatResultHasMoves) {
+
+    std::vector<uint32_t> original {1, 2};
+    std::vector<uint32_t> updated {2, 1};
+
+    auto expected = new std::vector<uint32_t> {1, 2};
+
+    testExpectations<uint32_t>(original, updated, nullptr, nullptr, expected, nullptr);
+
+    delete expected;
+}
+
+TEST(HeckelDiff, IGListKitWhenMovingObjectsTogetherThatResultHasMoves) {
+
+    std::vector<uint32_t> original {1, 2, 3, 3, 4};
+    std::vector<uint32_t> updated {2, 3, 1, 3, 4};
+
+    auto expected = new std::vector<uint32_t> {1, 2, 3};
+
+    testExpectations<uint32_t>(original, updated, nullptr, nullptr, expected, nullptr);
+
+    delete expected;
+}
+
+TEST(HeckelDiff, IGListKitWhenDeletingItemsWithInsertsWithMovesThatResultHasInsertsMovesAndDeletes) {
+
+    std::vector<uint32_t> original {0, 1, 2, 3, 4, 5, 6, 7, 8};
+    std::vector<uint32_t> updated  {0, 2, 3, 4, 7, 6, 9, 5, 10};
+
+    auto expected_inserted = new std::vector<uint32_t> {9, 10};
+    auto expected_deleted = new std::vector<uint32_t> {1};
+    auto expected_moved = new std::vector<uint32_t> {2, 3, 4, 7, 6, 5};
+
+    testExpectations<uint32_t>(original, updated, expected_inserted, expected_deleted, expected_moved, nullptr);
+
+    delete expected_inserted;
+    delete expected_deleted;
+    delete expected_moved;
+}
+
+TEST(HeckelDiff, IGListKitWhenInsertingObjectsWithArrayOfEqualObjectsThatChangeCountMatches) {
+
+    std::vector<std::string> original {"dog", "dog"};
+    std::vector<std::string> updated  {"dog", "dog", "dog", "dog"};
+
+    auto expected = new std::vector<std::string> {"dog", "dog"};
+
+    testExpectations<std::string>(original, updated, expected, nullptr, nullptr, nullptr);
+
+    delete expected;
+}
+
+TEST(HeckelDiff, IGListKitWhenDeletingObjectsWithArrayOfEqualObjectsThatChangeCountMatches) {
+
+    std::vector<std::string> original {"dog", "dog", "dog", "dog"};
+    std::vector<std::string> updated  {"dog", "dog"};
+
+    auto expected = new std::vector<std::string> {"dog", "dog"};
+
+    testExpectations<std::string>(original, updated, nullptr, expected, nullptr, nullptr);
+
+    delete expected;
+}

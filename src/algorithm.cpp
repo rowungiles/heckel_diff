@@ -11,39 +11,41 @@ static const std::string DELETED = "deleted";
 static const std::string MOVED = "moved";
 static const std::string UNCHANGED = "unchanged";
 
-//  Pass 1: Put new text into symbol table
+//  Pass 1: Put new text into entry table
 template<typename T>
-void HeckelDiff<T>::pass1(const std::vector<T> &n, std::unordered_map<T, SymbolTableEntry*> &symbol_table, std::vector<Entry<T>> &na) {
+void HeckelDiff<T>::pass1(const std::vector<T> &n, std::unordered_map<T, Entry*> &symbol_table, std::vector<Record<T>> &na) {
 
     for (const auto &item : n) {
 
-        auto entry = symbol_table[item] ? : new SymbolTableEntry();
+        auto entry = symbol_table[item] ? : new Entry();
 
         entry->nc_increment();
 
         symbol_table[item] = entry;
 
-        na.push_back(Entry<T>(entry, item));
+        na.push_back(Record<T>(entry, item));
     }
 }
 
-//  Pass 2: Put old text into symbol table
+//  Pass 2: Put old text into entry table
 template<typename T>
-void HeckelDiff<T>::pass2(const std::vector<T> &o, std::unordered_map<T, SymbolTableEntry*> &symbol_table, std::vector<Entry<T>> &oa) {
+void HeckelDiff<T>::pass2(const std::vector<T> &o, std::unordered_map<T, Entry*> &symbol_table, std::vector<Record<T>> &oa) {
 
     uint32_t i = 0;
 
-    for (const auto &item : o) {
+    for (auto it = o.end(); it != o.begin(); --it) {
 
-        auto entry = symbol_table[item] ? : new SymbolTableEntry();
+        auto item = o[i];
+
+        auto entry = symbol_table[item] ? : new Entry();
 
         entry->oc_increment();
 
-        entry->update_olno(i);
+        entry->push_olno(i);
 
         symbol_table[item] = entry;
 
-        oa.push_back(Entry<T>(entry, item));
+        oa.push_back(Record<T>(entry, item));
 
         i+=1;
     }
@@ -57,57 +59,83 @@ void HeckelDiff<T>::pass2(const std::vector<T> &o, std::unordered_map<T, SymbolT
  */
 
 template<typename T>
-void HeckelDiff<T>::pass3(std::vector<Entry<T>> &na, std::vector<Entry<T>> &oa) {
+void HeckelDiff<T>::pass3(std::vector<Record<T>> &na, std::vector<Record<T>> &oa) {
 
-    uint32_t i = 0;
+    uint32_t new_index = 0;
 
-    for (auto &entry : na) {
+    for (auto &record : na) {
 
-        if (entry.m_type == Entry<T>::SymbolEntry) {
-
-            auto symbol = entry.m_symbol_table_entry;
-
-            if (symbol->m_nc == symbol->m_oc == SymbolTableEntry::One) {
-
-                oa[symbol->m_olno].set_line_number(i);
-                entry.set_line_number(symbol->m_olno);
-            }
+        if (new_index > oa.size()) {
+            return;
         }
 
-        i+=1;
+        auto entry = record.entry;
+
+        auto old_index = entry->olno();
+
+        entry->pop_olno();
+
+        if (new_index != NotFound && old_index != NotFound && na[new_index] == oa[old_index]) {
+
+            if (new_index >= na.size() || new_index >= oa.size()) {
+                return;
+            }
+
+            na[new_index].set_index(old_index);
+        }
+
+        if (entry->nc() == entry->oc() && entry->oc() > 0) {
+
+            oa[old_index].set_index(new_index);
+            na[new_index].set_index(old_index);
+        }
+
+        new_index+=1;
     }
 }
 
+enum Direction {
+    Ascending,
+    Descending
+};
+
 template<typename T>
-static void find_unchanged_blocks(const Entry<T> &entry, const uint32_t direction, const uint32_t i, std::vector<Entry<T>> &na, std::vector<Entry<T>> &oa) {
+static void find_unchanged_blocks(const Record<T> &record, const Direction direction, const uint32_t i, std::vector<Record<T>> &na, std::vector<Record<T>> &oa) {
 
-    switch (entry.m_type) {
+    if (na.size() == 0 || oa.size() == 0) {
+        return;
+    }
 
-        case Entry<T>::LineNumber: {
+    switch (record.type()) {
 
-            if (na.size() == 0 || oa.size() == 0) {
+        case Record<T>::LineNumber: {
+
+            auto index = record.index();
+
+            auto offset = direction == Ascending ? 1 : -1;
+
+            auto new_index = i + offset;
+            auto old_index = index + offset;
+
+            if (new_index >= na.size() || new_index >= oa.size()) {
                 return;
             }
 
-            auto line_number = entry.m_line_number;
-
-            auto new_line_number = line_number + direction;
-
-            if (new_line_number >= na.size() || new_line_number >= oa.size()) {
+            if (old_index >= na.size() || old_index >= oa.size()) {
                 return;
             }
 
-            if (na[new_line_number] != oa[new_line_number]) {
+            if (na[new_index] != oa[old_index]) {
                 return;
             }
 
-            na[i+direction].set_line_number(new_line_number);
-            oa[new_line_number].set_line_number(i+direction);
+            na[new_index].set_index(old_index);
+            oa[old_index].set_index(new_index);
 
             break;
         }
 
-        case Entry<T>::SymbolEntry:
+        case Record<T>::SymbolTableEntry:
         default:
             break;
     }
@@ -123,121 +151,76 @@ static void find_unchanged_blocks(const Entry<T> &entry, const uint32_t directio
 
 //  Pass 4: Find ascending connected blocks
 template<typename T>
-void HeckelDiff<T>::pass4(std::vector<Entry<T>> &na, std::vector<Entry<T>> &oa) {
+void HeckelDiff<T>::pass4(std::vector<Record<T>> &na, std::vector<Record<T>> &oa) {
 
     uint32_t i = 0;
 
-    for (auto &entry : na) {
-        find_unchanged_blocks(entry, 1, i, na, oa);
-        ++i;
-    }
-}
+    for (auto &record : na) {
 
-//  Pass 5: Find descending connected blocks
-template<typename T>
-void HeckelDiff<T>::pass5(std::vector<Entry<T>> &na, std::vector<Entry<T>> &oa) {
-
-    for (auto it = na.end(); it != na.begin(); --it) {
-
-        uint32_t i = std::distance(na.begin(), it-1);
-
-        if (i == 0) {
-            return;
-        }
-
-        auto entry = na[i];
-
-        find_unchanged_blocks(entry, -1, i, na, oa);
-    }
-}
-
-template<typename T>
-static void populate_deleted_items(const std::vector<Entry<T>> &na, const std::vector<Entry<T>> &oa, std::vector<T> &deleted) {
-
-    uint32_t i = 0;
-    auto n =na;
-
-    for (const auto &entry : oa) {
-
-        switch (entry.m_type) {
-
-            case Entry<T>::SymbolEntry: {
-
-                auto symbol = entry.m_symbol_table_entry;
-
-                switch (symbol->m_nc) {
-                    case SymbolTableEntry::Zero:
-                        deleted.push_back(entry.m_value);
-                        break;
-
-                    case SymbolTableEntry::One:
-                    case SymbolTableEntry::Many:
-
-//                        if (symbol->m_olno >= na.size()) {
-//
-//                            deleted.push_back(entry.m_value);
-//
-//                        } else if (na[entry.m_line_number].m_symbol_table_entry != symbol) {
-//
-//                            deleted.push_back(entry.m_value);
-//                        }
-//                        break;
-
-                    default:
-                        break;
-                }
-                break;
-            }
-
-            case Entry<T>::LineNumber:
-            default:
-                break;
-        }
-
-        ++i;
-    }
-}
-
-template<typename T>
-static void populate_new_items(std::vector<Entry<T>> &na, std::vector<Entry<T>> &oa, std::vector<T> &inserted, std::vector<T> &unchanged, std::vector<T> &moved) {
-
-    uint32_t i = 0;
-
-    for (const auto &entry : na) {
-
-        switch (entry.m_type) {
-
-            case Entry<T>::SymbolEntry: {
-
-                inserted.push_back(entry.m_value);
-                break;
-            }
-
-            case Entry<T>::LineNumber: {
-
-                auto line_number = entry.m_line_number;
-
-                if (na[line_number] == oa[line_number]) {
-
-                    unchanged.push_back(entry.m_value);
-
-                } else {
-
-                    moved.push_back(entry.m_value);
-                }
-                break;
-            }
-
-            default:
-                break;
-        }
+        find_unchanged_blocks(record, Ascending, i, na, oa);
 
         i+=1;
     }
 }
 
+//  Pass 5: Find descending connected blocks
 template<typename T>
-std::unordered_map<std::string, std::vector<T>> HeckelDiff<T>::pass6(std::vector<Entry<T>> &na, std::vector<Entry<T>> &oa) {
+void HeckelDiff<T>::pass5(std::vector<Record<T>> &na, std::vector<Record<T>> &oa) {
+
+    for (auto it = na.end(); it != na.begin(); --it) {
+
+        uint32_t i = std::distance(na.begin(), it-1);
+
+        find_unchanged_blocks(na[i], Descending, i, na, oa);
+    }
+}
+
+template<typename T>
+static void populate_deleted_items(const std::vector<Record<T>> &oa, std::vector<T> &deleted) {
+
+    for (const auto &record : oa) {
+
+        if (record.index() != NotFound) {
+            continue;
+        }
+
+        auto entry = record.entry;
+
+        if (entry->oc() > entry->nc() || entry->nc() == 0) { // will remove the first duplicate instance that is found.
+
+            deleted.push_back(record.value());
+
+            entry->oc_decrement();
+        }
+    }
+}
+
+template<typename T>
+static void populate_new_items(std::vector<Record<T>> &na, std::vector<Record<T>> &oa, std::vector<T> &inserted, std::vector<T> &unchanged, std::vector<T> &moved) {
+
+    for (auto &record : na) {
+
+        if (record.index() == NotFound) {
+
+            inserted.push_back(record.value());
+
+        } else {
+
+            if (record == oa[record.index()] && record.index() == oa[record.index()].index()) {
+
+                unchanged.push_back(record.value());
+
+            } else if (record.entry == oa[record.index()].entry) {
+
+                moved.push_back(record.value());
+
+            }
+        }
+    }
+}
+
+template<typename T>
+std::unordered_map<std::string, std::vector<T>> HeckelDiff<T>::pass6(std::vector<Record<T>> &na, std::vector<Record<T>> &oa) {
 
     std::vector<T> inserted;
     std::vector<T> unchanged;
@@ -245,16 +228,22 @@ std::unordered_map<std::string, std::vector<T>> HeckelDiff<T>::pass6(std::vector
     std::vector<T> deleted;
 
     populate_new_items(na, oa, inserted, unchanged, moved);
-    populate_deleted_items(na, oa, deleted);
+    populate_deleted_items(oa, deleted);
 
-    // TODO: Space efficency checks and get the delete to work in block chunks.
-    return {
+    // TODO: Space and time efficency checks.
+
+    std::unordered_map<std::string, std::vector<T>> results {
             {INSERTED, inserted},
             {DELETED, deleted},
             {MOVED, moved},
             {UNCHANGED, unchanged}
     };
+
+    return results;
 }
 
 template class HeckelDiff<std::string>;
-template class Entry<std::string>;
+template class Record<std::string>;
+
+template class HeckelDiff<uint32_t>;
+template class Record<uint32_t>;
