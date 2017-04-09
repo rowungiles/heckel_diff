@@ -94,7 +94,7 @@ TEST(HeckelDiff, CharactersDeleted) {
     std::vector<std::string> original {"A", "X", "C", "Y", "D", "W", "E", "A", "E"};
     std::vector<std::string> updated {"A", "B", "C", "D", "E"};
 
-    auto expected_deleted = new std::vector<std::string> {"A", "X", "Y", "W", "E"};
+    auto expected_deleted = new std::vector<std::string> {"X", "Y", "W", "A", "E"};
 
     testExpectations<std::string>(original, updated, nullptr, expected_deleted, nullptr, nullptr);
 

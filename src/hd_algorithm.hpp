@@ -22,9 +22,7 @@ namespace HeckelDiff {
         uint32_t oc = 0;
         uint32_t nc = 0;
 
-        Entry() {
-            all_old_indexes.push(NotFound);
-        }
+        Entry() {}
     };
 
     template<typename T>
