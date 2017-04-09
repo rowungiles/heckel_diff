@@ -26,6 +26,7 @@ namespace HeckelDiff {
             auto entry = symbol_table[item] ?: new Entry();
 
             entry->nc += 1;
+            entry->all_old_indexes.push(NotFound);
 
             symbol_table[item] = entry;
 
@@ -187,18 +188,24 @@ namespace HeckelDiff {
     template<typename T>
     static void populate_deleted_items(const std::vector<Record<T>> &oa, std::vector<T> &deleted) {
 
-        for (const auto &record : oa) {
+        std::vector<uint32_t> counter(oa.size(), 0);
 
-            if (record.index() != NotFound) {
-                continue;
-            }
+        for (const auto &record : oa) {
 
             auto entry = record.entry;
 
-            if (entry->oc > entry->nc || entry->nc == 0) {  // will remove the first duplicate instance that is found.
+            auto index = entry->all_old_indexes.top();
 
+            if (record.index() != NotFound || index == NotFound) {
+                continue;
+            }
+
+            counter[entry->all_old_indexes.top()] += 1;
+
+            auto record_count = counter[entry->all_old_indexes.top()];
+
+            if (record_count > entry->nc || entry->nc == 0) {
                 deleted.push_back(record.value);
-                entry->oc -= 1;
             }
         }
     }
