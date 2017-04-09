@@ -10,6 +10,7 @@
 #include <vector>
 #include <stack>
 #include <limits>
+#include <memory>
 
 namespace HeckelDiff {
 
@@ -21,8 +22,6 @@ namespace HeckelDiff {
 
         uint32_t oc = 0;
         uint32_t nc = 0;
-
-        Entry() {}
     };
 
     template<typename T>
@@ -43,7 +42,7 @@ namespace HeckelDiff {
         Type type = SymbolTableEntry;
 
 
-        Record<T>(Entry *entry, T value) : entry(entry), value(value) {
+        Record<T>(Entry *entry, const T value) : entry(entry), value(value) {
             type = SymbolTableEntry;
         }
 
@@ -56,11 +55,11 @@ namespace HeckelDiff {
             return m_index;
         }
 
-        bool operator==(const Record<T> &rhs) {
+        bool operator==(const Record<T> &rhs) const {
             return this->type == rhs.type && this->entry == rhs.entry;
         }
 
-        bool operator!=(const Record<T> &rhs) {
+        bool operator!=(const Record<T> &rhs) const {
             return this->type != rhs.type || this->entry != rhs.entry;
         }
     };
@@ -69,13 +68,14 @@ namespace HeckelDiff {
     class Algorithm {
 
     private:
-        std::unordered_map<T, Entry *> symbol_table;
+
+        std::unordered_map<T, std::unique_ptr<Entry>> symbol_table;
         std::vector<Record<T>> oa;
         std::vector<Record<T>> na;
 
-        void pass1(const std::vector<T> &n, std::unordered_map<T, Entry *> &symbolTable, std::vector<Record<T>> &na);
+        void pass1(const std::vector<T> &n, std::unordered_map<T, std::unique_ptr<Entry>> &symbolTable, std::vector<Record<T>> &na);
 
-        void pass2(const std::vector<T> &o, std::unordered_map<T, Entry *> &symbolTable, std::vector<Record<T>> &oa);
+        void pass2(const std::vector<T> &o, std::unordered_map<T, std::unique_ptr<Entry>>&symbolTable, std::vector<Record<T>> &oa);
 
         void pass3(std::vector<Record<T>> &na, std::vector<Record<T>> &oa);
 
@@ -92,20 +92,10 @@ namespace HeckelDiff {
         const std::string MOVED = "moved";
         const std::string UNCHANGED = "unchanged";
 
-        ~Algorithm() {
-
-            for (auto item : symbol_table) {
-                delete item.second;
-            }
-
-            symbol_table.clear();
-        }
-
         auto diff(const std::vector<T> original, const std::vector<T> updated) {
 
             oa.reserve(original.size());
             na.reserve(updated.size());
-            symbol_table.reserve(original.size() + updated.size());
 
             pass1(updated, symbol_table, na);
             pass2(original, symbol_table, oa);

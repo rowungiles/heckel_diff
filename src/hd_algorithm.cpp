@@ -1,34 +1,28 @@
 /*
  * Copyright 2017 Rowun Giles - http://github.com/rowungiles
+ * http://documents.scribd.com/docs/10ro9oowpo1h81pgh1as.pdf
  */
+
+// TODO(rowun): Benchmarking.
 
 #include "hd_algorithm.hpp"
 
 namespace HeckelDiff {
-/*
- * TODO(rowun): Space and time efficency checks. Benchmarking. General code review.
- * https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md
-*/
-
-/*
- * http://documents.scribd.com/docs/10ro9oowpo1h81pgh1as.pdf
- * This algorithm handles dupes poorly. Be sure to operate on values that can provide a hash.
- */
-
 //  Pass 1: Put new text into entry table
     template<typename T>
     void Algorithm<T>::pass1(const std::vector<T> &n,
-                              std::unordered_map<T, Entry *> &symbol_table,
-                              std::vector<Record<T>> &na) {
+                             std::unordered_map<T, std::unique_ptr<Entry>> &symbol_table,
+                             std::vector<Record<T>> &na) {
 
         for (const auto &item : n) {
 
-            auto entry = symbol_table[item] ?: new Entry();
+            auto entry_ptr = symbol_table[item] ? std::move(symbol_table[item]) : std::make_unique<Entry>();
 
+            auto entry = entry_ptr.get();
             entry->nc += 1;
             entry->all_old_indexes.push(NotFound);
 
-            symbol_table[item] = entry;
+            symbol_table[item] = std::move(entry_ptr);
 
             na.push_back(Record<T>(entry, item));
         }
@@ -37,8 +31,8 @@ namespace HeckelDiff {
 //  Pass 2: Put old text into entry table
     template<typename T>
     void Algorithm<T>::pass2(const std::vector<T> &o,
-                              std::unordered_map<T, Entry *> &symbol_table,
-                              std::vector<Record<T>> &oa) {
+                             std::unordered_map<T, std::unique_ptr<Entry>> &symbol_table,
+                             std::vector<Record<T>> &oa) {
 
         uint32_t i = 0;
 
@@ -46,12 +40,15 @@ namespace HeckelDiff {
 
             auto item = o[i];
 
-            auto entry = symbol_table[item] ?: new Entry();
+            auto entry_ptr = symbol_table[item] ? std::move(symbol_table[item]) : std::make_unique<Entry>();
 
+            auto entry = entry_ptr.get();
             entry->oc += 1;
+
+            // store the indexes in a stack so they can be fetched in their original ordering
             entry->all_old_indexes.push(i);
 
-            symbol_table[item] = entry;
+            symbol_table[item] = std::move(entry_ptr);
 
             oa.push_back(Record<T>(entry, item));
 
@@ -65,7 +62,6 @@ namespace HeckelDiff {
  * If a line occurs only once in each file, then it must be the same line, although it may have been moved.
  * We use this observation to locate unaltered lines that we subsequently exclude from further treatment.
  */
-
     template<typename T>
     void Algorithm<T>::pass3(std::vector<Record<T>> &na, std::vector<Record<T>> &oa) {
 
@@ -73,21 +69,17 @@ namespace HeckelDiff {
 
         for (auto &record : na) {
 
-            if (new_index > oa.size()) {
+            if (new_index >= oa.size()) {
                 return;
             }
 
             auto entry = record.entry;
 
             auto old_index = entry->all_old_indexes.top();
-
             entry->all_old_indexes.pop();
 
+            // if we find an item that has moved but that may have had variance from oc to nc, allow a reverse lookup
             if (new_index != NotFound && old_index != NotFound && na[new_index] == oa[old_index]) {
-
-                if (new_index >= na.size() || new_index >= oa.size()) {
-                    return;
-                }
 
                 na[new_index].set_index(old_index);
             }
@@ -103,8 +95,8 @@ namespace HeckelDiff {
     }
 
     enum Direction {
-        Ascending,
-        Descending
+        Ascending = 1,
+        Descending = - 1
     };
 
     template<typename T>
@@ -122,10 +114,8 @@ namespace HeckelDiff {
 
                 auto index = record.index();
 
-                auto offset = direction == Ascending ? 1 : -1;
-
-                auto new_index = i + offset;
-                auto old_index = index + offset;
+                auto new_index = i + direction;
+                auto old_index = index + direction;
 
                 if (new_index >= na.size() || new_index >= oa.size()) {
                     return;
@@ -188,15 +178,14 @@ namespace HeckelDiff {
     template<typename T>
     static void populate_deleted_items(const std::vector<Record<T>> &oa, std::vector<T> &deleted) {
 
+        // keep track of the number of times an item is deleted. Use this count to avoid deleting duplicates.
         std::vector<uint32_t> counter(oa.size(), 0);
 
         for (const auto &record : oa) {
 
             auto entry = record.entry;
 
-            auto index = entry->all_old_indexes.top();
-
-            if (record.index() != NotFound || index == NotFound) {
+            if (entry->all_old_indexes.top() == NotFound) {
                 continue;
             }
 
@@ -242,7 +231,7 @@ namespace HeckelDiff {
 
     template<typename T>
     std::unordered_map<std::string, std::vector<T>> Algorithm<T>::pass6(std::vector<Record<T>> &na,
-                                                                         std::vector<Record<T>> &oa) {
+                                                                        std::vector<Record<T>> &oa) {
 
         std::vector<T> inserted;
         std::vector<T> unchanged;
