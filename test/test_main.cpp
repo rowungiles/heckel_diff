@@ -1,4 +1,6 @@
-#include <iostream>
+/*
+ * Copyright 2017 Rowun Giles - http://github.com/rowungiles
+ */
 
 #include "gtest/gtest.h"
 

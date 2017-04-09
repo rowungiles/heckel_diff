@@ -8,35 +8,12 @@
 #include <vector>
 #include <unordered_map>
 #include <string>
+#include "../src/helpers.hpp"
 
 static const std::string INSERTED = "inserted";
 static const std::string DELETED = "deleted";
 static const std::string MOVED = "moved";
 static const std::string UNCHANGED = "unchanged";
-
-static auto components_seperated_by_delimiter(const char delimiter, const std::string string) {
-
-    uint32_t i = 0;
-
-    std::string tmp;
-    std::vector<std::string> s;
-
-    for (const auto &character : string) {
-
-        if (character != delimiter) {
-            tmp.insert(i, 1, character);
-            i+=1;
-        } else {
-            s.push_back(tmp);
-            tmp = "";
-            i=0;
-        }
-    }
-
-    s.push_back(tmp);
-
-    return s;
-}
 
 template <typename T>
 void checkExpectedType(const std::vector<T> *result, const std::vector<T> actual) {
@@ -195,8 +172,8 @@ TEST(HeckelDiff, ReferenceManualInserted) {
     std::string o = "much writing is like snow , a mass of long words and phrases falls upon the relevant facts covering up the details .";
     std::string n= "a mass of latin words falls upon the relevant facts like soft snow , covering up the details .";
 
-    std::vector<std::string> original = components_seperated_by_delimiter(' ', o);
-    std::vector<std::string> updated = components_seperated_by_delimiter(' ', n);
+    std::vector<std::string> original = HeckelDiffHelpers::components_seperated_by_delimiter(o, ' ');
+    std::vector<std::string> updated = HeckelDiffHelpers::components_seperated_by_delimiter(n, ' ');
 
     auto expected_inserted = new std::vector<std::string> {"latin", "soft"};
 
@@ -210,8 +187,8 @@ TEST(HeckelDiff, ReferenceManualDeleted) {
     std::string o = "much writing is like snow , a mass of long words and phrases falls upon the relevant facts covering up the details .";
     std::string n= "a mass of latin words falls upon the relevant facts like soft snow , covering up the details .";
 
-    std::vector<std::string> original = components_seperated_by_delimiter(' ', o);
-    std::vector<std::string> updated = components_seperated_by_delimiter(' ', n);
+    std::vector<std::string> original = HeckelDiffHelpers::components_seperated_by_delimiter(o, ' ');
+    std::vector<std::string> updated = HeckelDiffHelpers::components_seperated_by_delimiter(n, ' ');
 
     auto expected_deleted = new std::vector<std::string> {"much", "writing", "is", "long", "and", "phrases"};
 
@@ -225,8 +202,8 @@ TEST(HeckelDiff, ReferenceManualMoved) {
     std::string o = "much writing is like snow , a mass of long words and phrases falls upon the relevant facts covering up the details .";
     std::string n = "a mass of latin words falls upon the relevant facts like soft snow , covering up the details .";
 
-    std::vector<std::string> original = components_seperated_by_delimiter(' ', o);
-    std::vector<std::string> updated = components_seperated_by_delimiter(' ', n);
+    std::vector<std::string> original = HeckelDiffHelpers::components_seperated_by_delimiter(o, ' ');
+    std::vector<std::string> updated = HeckelDiffHelpers::components_seperated_by_delimiter(n, ' ');
 
     auto expected_moved = new std::vector<std::string> {"a", "mass", "of", "words", "falls", "upon", "the", "relevant", "facts", "like", "snow", ",", "covering", "up", "the", "details", "."};
 
@@ -240,8 +217,8 @@ TEST(HeckelDiff, ReferenceManualUnchanged) {
     std::string o = "much writing is like snow , a mass of long words and phrases falls upon the relevant facts covering up the details .";
     std::string n= "a mass of latin words falls upon the relevant facts like soft snow , covering up the details .";
 
-    std::vector<std::string> original = components_seperated_by_delimiter(' ', o);
-    std::vector<std::string> updated = components_seperated_by_delimiter(' ', n);
+    std::vector<std::string> original = HeckelDiffHelpers::components_seperated_by_delimiter(o, ' ');
+    std::vector<std::string> updated = HeckelDiffHelpers::components_seperated_by_delimiter(n, ' ');
 
     auto expected_unchanged = new std::vector<std::string> {};
 
@@ -250,6 +227,8 @@ TEST(HeckelDiff, ReferenceManualUnchanged) {
     delete expected_unchanged;
 }
 
+
+// Utilise several tests from IGListKit (https://github.com/Instagram/IGListKit) for more completeness.
 TEST(HeckelDiff, IGListKitWhenDiffingEmptyArraysThatResultHasNoChanges) {
 
     std::vector<uint32_t> original {};
