@@ -6,7 +6,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Werror -Wextra")
 
 set(SOURCES
     main.cpp
-    algorithm.cpp
+        hd_algorithm.cpp
 )
 
 add_library(${PROJECT_NAME} ${SOURCES})

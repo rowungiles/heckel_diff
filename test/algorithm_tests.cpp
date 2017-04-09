@@ -1,5 +1,9 @@
+/*
+ * Copyright 2017 Rowun Giles - http://github.com/rowungiles
+ */
+
 #include "gtest/gtest.h"
-#include "../src/algorithm.hpp"
+#include "../src/hd_algorithm.hpp"
 
 #include <vector>
 #include <unordered_map>
@@ -58,7 +62,7 @@ void testExpectations(const std::vector<T> &original, const std::vector<T> &upda
                       std::vector<T> *expected_moved,
                       std::vector<T> *expected_unchanged) {
 
-    HeckelDiff<T> h;
+    HeckelDiff::Algorithm<T> h;
 
     auto actual = h.diff(original, updated);
 
