@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="heckel_diff"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\src\;CMake Files\test\;CMake Files\cmake-build-release\;CMake Files\cmake-build-release\test\;CMake Files\cmake-build-release\test\googletest-src\;CMake Files\cmake-build-release\test\googletest-src\googlemock\;CMake Files\cmake-build-release\test\googletest-src\googletest\;CMake Files\cmake-build-release\test\googletest-src\googletest\cmake\;CMake Files\example\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="bin_heckel_diff">
+				<Option output="/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/bin_heckel_diff" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/rowun/Development/cpp/heckel_diff/src/src"/>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/6.3.1/../../../../include/c++/6.3.1"/>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/6.3.1/../../../../include/c++/6.3.1/x86_64-redhat-linux"/>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/6.3.1/../../../../include/c++/6.3.1/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/6.3.1/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 bin_heckel_diff"/>
+					<CompileFile command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="bin_heckel_diff/fast">
+				<Option output="/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/bin_heckel_diff" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/rowun/Development/cpp/heckel_diff/src/src"/>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/6.3.1/../../../../include/c++/6.3.1"/>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/6.3.1/../../../../include/c++/6.3.1/x86_64-redhat-linux"/>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/6.3.1/../../../../include/c++/6.3.1/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/6.3.1/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 bin_heckel_diff/fast"/>
+					<CompileFile command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="heckel_diff">
+				<Option output="/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/libheckel_diff.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/rowun/Development/cpp/heckel_diff/src/src"/>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/6.3.1/../../../../include/c++/6.3.1"/>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/6.3.1/../../../../include/c++/6.3.1/x86_64-redhat-linux"/>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/6.3.1/../../../../include/c++/6.3.1/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/6.3.1/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 heckel_diff"/>
+					<CompileFile command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="heckel_diff/fast">
+				<Option output="/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/libheckel_diff.a" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/rowun/Development/cpp/heckel_diff/src/src"/>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/6.3.1/../../../../include/c++/6.3.1"/>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/6.3.1/../../../../include/c++/6.3.1/x86_64-redhat-linux"/>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/6.3.1/../../../../include/c++/6.3.1/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-redhat-linux/6.3.1/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 heckel_diff/fast"/>
+					<CompileFile command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Nightly">
+				<Option working_dir="/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 Nightly"/>
+					<CompileFile command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Continuous">
+				<Option working_dir="/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 Continuous"/>
+					<CompileFile command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="valgrind">
+				<Option working_dir="/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 valgrind"/>
+					<CompileFile command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Experimental">
+				<Option working_dir="/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 Experimental"/>
+					<CompileFile command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j2 -f &quot;/home/rowun/Development/cpp/heckel_diff/cmake-build-release/src/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/rowun/Development/cpp/heckel_diff/src/main.cpp">
+			<Option target="bin_heckel_diff"/>
+		</Unit>
+		<Unit filename="/home/rowun/Development/cpp/heckel_diff/src/src/heckel_diff.cpp">
+			<Option target="bin_heckel_diff"/>
+			<Option target="heckel_diff"/>
+		</Unit>
+		<Unit filename="/home/rowun/Development/cpp/heckel_diff/src/src/heckel_diff.hpp">
+			<Option target="bin_heckel_diff"/>
+			<Option target="heckel_diff"/>
+		</Unit>
+		<Unit filename="/home/rowun/Development/cpp/heckel_diff/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/rowun/Development/cpp/heckel_diff/src/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\src\"/>
+		</Unit>
+		<Unit filename="/home/rowun/Development/cpp/heckel_diff/src/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\src\"/>
+		</Unit>
+		<Unit filename="/home/rowun/Development/cpp/heckel_diff/test/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\test\"/>
+		</Unit>
+		<Unit filename="/home/rowun/Development/cpp/heckel_diff/test/CMakeLists.txt.in">
+			<Option virtualFolder="CMake Files\test\"/>
+		</Unit>
+		<Unit filename="/home/rowun/Development/cpp/heckel_diff/test/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\test\"/>
+		</Unit>
+		<Unit filename="/home/rowun/Development/cpp/heckel_diff/test/CMakeLists.txt.in">
+			<Option virtualFolder="CMake Files\test\"/>
+		</Unit>
+		<Unit filename="/home/rowun/Development/cpp/heckel_diff/cmake-build-release/test/googletest-src/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-release\test\googletest-src\"/>
+		</Unit>
+		<Unit filename="/home/rowun/Development/cpp/heckel_diff/cmake-build-release/test/googletest-src/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-release\test\googletest-src\"/>
+		</Unit>
+		<Unit filename="/home/rowun/Development/cpp/heckel_diff/cmake-build-release/test/googletest-src/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-release\test\googletest-src\"/>
+		</Unit>
+		<Unit filename="/home/rowun/Development/cpp/heckel_diff/cmake-build-release/test/googletest-src/googlemock/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-release\test\googletest-src\googlemock\"/>
+		</Unit>
+		<Unit filename="/home/rowun/Development/cpp/heckel_diff/cmake-build-release/test/googletest-src/googlemock/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-release\test\googletest-src\googlemock\"/>
+		</Unit>
+		<Unit filename="/home/rowun/Development/cpp/heckel_diff/cmake-build-release/test/googletest-src/googlemock/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-release\test\googletest-src\googlemock\"/>
+		</Unit>
+		<Unit filename="/home/rowun/Development/cpp/heckel_diff/cmake-build-release/test/googletest-src/googlemock/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-release\test\googletest-src\googlemock\"/>
+		</Unit>
+		<Unit filename="/home/rowun/Development/cpp/heckel_diff/cmake-build-release/test/googletest-src/googletest/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-release\test\googletest-src\googletest\"/>
+		</Unit>
+		<Unit filename="/home/rowun/Development/cpp/heckel_diff/cmake-build-release/test/googletest-src/googletest/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-release\test\googletest-src\googletest\"/>
+		</Unit>
+		<Unit filename="/home/rowun/Development/cpp/heckel_diff/cmake-build-release/test/googletest-src/googletest/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-release\test\googletest-src\googletest\"/>
+		</Unit>
+		<Unit filename="/home/rowun/Development/cpp/heckel_diff/cmake-build-release/test/googletest-src/googletest/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-release\test\googletest-src\googletest\"/>
+		</Unit>
+		<Unit filename="/home/rowun/Development/cpp/heckel_diff/cmake-build-release/test/googletest-src/googletest/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-release\test\googletest-src\googletest\"/>
+		</Unit>
+		<Unit filename="/home/rowun/Development/cpp/heckel_diff/cmake-build-release/test/googletest-src/googletest/cmake/internal_utils.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-release\test\googletest-src\googletest\cmake\"/>
+		</Unit>
+		<Unit filename="/home/rowun/Development/cpp/heckel_diff/cmake-build-release/test/googletest-src/googletest/cmake/internal_utils.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-release\test\googletest-src\googletest\cmake\"/>
+		</Unit>
+		<Unit filename="/home/rowun/Development/cpp/heckel_diff/cmake-build-release/test/googletest-src/googletest/cmake/internal_utils.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-release\test\googletest-src\googletest\cmake\"/>
+		</Unit>
+		<Unit filename="/home/rowun/Development/cpp/heckel_diff/cmake-build-release/test/googletest-src/googletest/cmake/internal_utils.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-release\test\googletest-src\googletest\cmake\"/>
+		</Unit>
+		<Unit filename="/home/rowun/Development/cpp/heckel_diff/cmake-build-release/test/googletest-src/googletest/cmake/internal_utils.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-release\test\googletest-src\googletest\cmake\"/>
+		</Unit>
+		<Unit filename="/home/rowun/Development/cpp/heckel_diff/example/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\example\"/>
+		</Unit>
+		<Unit filename="/home/rowun/Development/cpp/heckel_diff/example/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\example\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

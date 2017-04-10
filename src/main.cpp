@@ -2,9 +2,8 @@
  * Copyright 2017 Rowun Giles - http://github.com/rowungiles
  */
 
-#include "hd_algorithm.hpp"
-
-#include "helpers.hpp"
+#include "src/heckel_diff.hpp"
+#include "../test/helpers.hpp"
 
 int main() {
 

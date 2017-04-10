@@ -5,6 +5,9 @@
 #ifndef helpers
 #define helpers
 
+#include <string>
+#include <vector>
+
 namespace HeckelDiffHelpers {
 
     static auto components_seperated_by_delimiter(const std::string string, const char delimiter) {

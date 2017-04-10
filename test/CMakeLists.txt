@@ -16,10 +16,15 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
                  ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
 )
 
+find_library(${LIBRARY} ${LIB_NAME}
+        HINTS ${CMAKE_BINARY_DIR}/src)
+
+include_directories(${CMAKE_BINARY_DIR}/src/include)
+
 set(SOURCES
-        test_main.cpp
-        algorithm_tests.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test_main.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/algorithm_tests.cpp
         )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
-target_link_libraries(${PROJECT_NAME} gtest ${MAIN_PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME} gtest ${LIBRARY})

@@ -9,23 +9,28 @@ if(MEMORYCHECK_COMMAND)
 
     include(CTest)
 
-    add_custom_target(test_memcheck
+    add_custom_target(valgrind
             COMMAND ${CMAKE_CTEST_COMMAND}
             --force-new-ctest-process --test-action memcheck
             COMMAND cat "${CMAKE_BINARY_DIR}/test/tmp/MemoryChecker.*.log")
 
-    add_test(valgrind ${BINARY_NAME})
+    add_test(valgrind ${BIN_NAME})
 
 else()
     message("Valgrind not found")
 endif()
 
-set(SOURCES
-        main.cpp
-        hd_algorithm.cpp
+include_directories(${PROJECT_SOURCE_DIR}/src)
+
+set(LIB_SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/heckel_diff.cpp
         )
 
-add_library(${PROJECT_NAME} ${SOURCES})
-add_executable(${BINARY_NAME} ${SOURCES})
+add_library(${LIB_NAME} ${LIB_SOURCES})
 
-target_link_libraries(${BINARY_NAME} ${PROJECT_NAME})
+set(SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/heckel_diff.cpp
+        )
+
+add_executable(${BIN_NAME} ${SOURCES})

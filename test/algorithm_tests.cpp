@@ -2,21 +2,13 @@
  * Copyright 2017 Rowun Giles - http://github.com/rowungiles
  */
 
+#include <chrono>
 #include "gtest/gtest.h"
-#include "../src/hd_algorithm.hpp"
-
-#include <vector>
-#include <unordered_map>
-#include <string>
-#include "../src/helpers.hpp"
-
-static const std::string INSERTED = "inserted";
-static const std::string DELETED = "deleted";
-static const std::string MOVED = "moved";
-static const std::string UNCHANGED = "unchanged";
+#include <heckel_diff/heckel_diff.hpp>
+#include "helpers.hpp"
 
 template <typename T>
-void checkExpectedType(const std::vector<T> *result, const std::vector<T> actual) {
+void checkExpectedType(const std::vector<T> *result, const std::vector<T> &actual) {
 
     if (result == nullptr) {
         return;
@@ -26,27 +18,72 @@ void checkExpectedType(const std::vector<T> *result, const std::vector<T> actual
 
     EXPECT_EQ(expected.size(), actual.size());
 
-    for (uint32_t i = 0; i < actual.size(); ++i) {
+    for (size_t i = 0; i < actual.size(); ++i) {
         EXPECT_EQ(expected[i], actual[i]);
     }
 }
 
-//  TODO: really, what I want is optionals. But can't use Boost on macOS Sierra right now, so pointers it is
+/*
+ * TODO: rather than points, optionals better represent the intent of expected.
+ * Boost 1.63 was failing on macOS Sierra - try again when 1.64 is out.
+ */
+
 template <typename T>
 void testExpectations(const std::vector<T> &original, const std::vector<T> &updated,
                       std::vector<T> *expected_inserted,
                       std::vector<T> *expected_deleted,
                       std::vector<T> *expected_moved,
-                      std::vector<T> *expected_unchanged) {
+                      std::vector<T> *expected_unchanged,
+                      bool is_timed = false,
+                      double not_greater_than_ms_time = 0.0) {
 
     HeckelDiff::Algorithm<T> h;
 
-    auto actual = h.diff(original, updated);
+    std::unordered_map<std::string, std::vector<T>> actual;
 
-    auto actual_inserted = actual[INSERTED];
-    auto actual_deleted = actual[DELETED];
-    auto actual_moved = actual[MOVED];
-    auto actual_unchanged = actual[UNCHANGED];
+    if (is_timed) {
+
+        uint32_t samples = 3;
+
+        auto sum_cputime_ms = 0.0;
+        auto sum_wallclock_ms = 0.0;
+
+        for (uint32_t i=0; i < samples; i+=1) {
+
+            std::clock_t c_start = std::clock();
+            auto t_start = std::chrono::steady_clock::now();
+
+            actual = h.diff(original, updated);
+
+            auto t_end = std::chrono::steady_clock::now();
+            std::clock_t c_end = std::clock();
+
+            sum_cputime_ms += 1000.0 * (c_end - c_start) / CLOCKS_PER_SEC;
+            sum_wallclock_ms += std::chrono::duration<double, std::milli>(t_end - t_start).count();
+        }
+
+        std::cout << "\n"
+                  << "Not greater than: "
+                  << not_greater_than_ms_time
+                  << " ms\n"
+                  << std::fixed << std::setprecision(2) << "CPU time used: "
+                  << (sum_cputime_ms / samples)
+                  << " ms\n"
+                  << "Wall clock time passed: "
+                  << (sum_wallclock_ms / samples)
+                  << " ms\n";
+
+        EXPECT_GE(not_greater_than_ms_time, (sum_wallclock_ms / samples));
+
+    } else {
+
+        actual = h.diff(original, updated);
+    }
+
+    auto actual_inserted = actual[HeckelDiff::INSERTED];
+    auto actual_deleted = actual[HeckelDiff::DELETED];
+    auto actual_moved = actual[HeckelDiff::MOVED];
+    auto actual_unchanged = actual[HeckelDiff::UNCHANGED];
 
     checkExpectedType<T>(expected_inserted, actual_inserted);
     checkExpectedType<T>(expected_deleted, actual_deleted);
@@ -150,6 +187,22 @@ TEST(HeckelDiff, BlockMove) {
     delete expected_moved;
 }
 
+TEST(HeckelDiff, Benchmark) {
+
+    std::vector<size_t> original{};
+
+    for (size_t i = 0; i < 5000; i+=1) {
+        original.push_back(i);
+    }
+
+    std::vector<size_t> updated = original;
+
+    std::reverse(original.begin(), original.end());
+
+    auto one_frame = 16.67;  // 60fps
+    testExpectations<size_t>(original, updated, nullptr, nullptr, nullptr, nullptr, true, one_frame);
+}
+
 //  MARK: Mixture of Scenarios
 TEST(HeckelDiff, MixtureOfAllScenariosAndVariableLength) {
 
@@ -161,19 +214,31 @@ TEST(HeckelDiff, MixtureOfAllScenariosAndVariableLength) {
     auto expected_moved = new std::vector<std::string> {"D", "E", "A", "Y"};
     auto expected_unchanged = new std::vector<std::string> {"A", "C"};
 
-    testExpectations<std::string>(original, updated, expected_inserted, expected_deleted, expected_moved, expected_unchanged);
+    testExpectations<std::string>(original, updated, expected_inserted,
+                                  expected_deleted,
+                                  expected_moved,
+                                  expected_unchanged);
 
     delete expected_deleted;
+}
+
+static std::vector<std::string> delimited_reference_manual_o() {
+    const std::string reference_manual_o = "much writing is like snow , a mass of long words and phrases falls upon "
+            "the relevant facts covering up the details .";
+    return HeckelDiffHelpers::components_seperated_by_delimiter(reference_manual_o, ' ');
+}
+
+static std::vector<std::string> delimited_reference_manual_n() {
+    const std::string reference_manual_n = "a mass of latin words falls upon the relevant facts like soft snow , "
+            "covering up the details .";
+    return HeckelDiffHelpers::components_seperated_by_delimiter(reference_manual_n, ' ');
 }
 
 // MARK: Testing the reference manual - http://documents.scribd.com/docs/10ro9oowpo1h81pgh1as.pdf
 TEST(HeckelDiff, ReferenceManualInserted) {
 
-    std::string o = "much writing is like snow , a mass of long words and phrases falls upon the relevant facts covering up the details .";
-    std::string n= "a mass of latin words falls upon the relevant facts like soft snow , covering up the details .";
-
-    std::vector<std::string> original = HeckelDiffHelpers::components_seperated_by_delimiter(o, ' ');
-    std::vector<std::string> updated = HeckelDiffHelpers::components_seperated_by_delimiter(n, ' ');
+    std::vector<std::string> original = delimited_reference_manual_o();
+    std::vector<std::string> updated = delimited_reference_manual_n();
 
     auto expected_inserted = new std::vector<std::string> {"latin", "soft"};
 
@@ -184,11 +249,8 @@ TEST(HeckelDiff, ReferenceManualInserted) {
 
 TEST(HeckelDiff, ReferenceManualDeleted) {
 
-    std::string o = "much writing is like snow , a mass of long words and phrases falls upon the relevant facts covering up the details .";
-    std::string n= "a mass of latin words falls upon the relevant facts like soft snow , covering up the details .";
-
-    std::vector<std::string> original = HeckelDiffHelpers::components_seperated_by_delimiter(o, ' ');
-    std::vector<std::string> updated = HeckelDiffHelpers::components_seperated_by_delimiter(n, ' ');
+    std::vector<std::string> original = delimited_reference_manual_o();
+    std::vector<std::string> updated = delimited_reference_manual_n();
 
     auto expected_deleted = new std::vector<std::string> {"much", "writing", "is", "long", "and", "phrases"};
 
@@ -199,13 +261,12 @@ TEST(HeckelDiff, ReferenceManualDeleted) {
 
 TEST(HeckelDiff, ReferenceManualMoved) {
 
-    std::string o = "much writing is like snow , a mass of long words and phrases falls upon the relevant facts covering up the details .";
-    std::string n = "a mass of latin words falls upon the relevant facts like soft snow , covering up the details .";
+    std::vector<std::string> original = delimited_reference_manual_o();
+    std::vector<std::string> updated = delimited_reference_manual_n();
 
-    std::vector<std::string> original = HeckelDiffHelpers::components_seperated_by_delimiter(o, ' ');
-    std::vector<std::string> updated = HeckelDiffHelpers::components_seperated_by_delimiter(n, ' ');
-
-    auto expected_moved = new std::vector<std::string> {"a", "mass", "of", "words", "falls", "upon", "the", "relevant", "facts", "like", "snow", ",", "covering", "up", "the", "details", "."};
+    auto expected_moved = new std::vector<std::string> {"a", "mass", "of", "words", "falls", "upon", "the",
+                                                        "relevant", "facts", "like", "snow", ",", "covering", "up",
+                                                        "the", "details", "."};
 
     testExpectations<std::string>(original, updated, nullptr, nullptr, expected_moved, nullptr);
 
@@ -214,11 +275,8 @@ TEST(HeckelDiff, ReferenceManualMoved) {
 
 TEST(HeckelDiff, ReferenceManualUnchanged) {
 
-    std::string o = "much writing is like snow , a mass of long words and phrases falls upon the relevant facts covering up the details .";
-    std::string n= "a mass of latin words falls upon the relevant facts like soft snow , covering up the details .";
-
-    std::vector<std::string> original = HeckelDiffHelpers::components_seperated_by_delimiter(o, ' ');
-    std::vector<std::string> updated = HeckelDiffHelpers::components_seperated_by_delimiter(n, ' ');
+    std::vector<std::string> original = delimited_reference_manual_o();
+    std::vector<std::string> updated = delimited_reference_manual_n();
 
     auto expected_unchanged = new std::vector<std::string> {};
 
@@ -227,66 +285,65 @@ TEST(HeckelDiff, ReferenceManualUnchanged) {
     delete expected_unchanged;
 }
 
-
 // Utilise several tests from IGListKit (https://github.com/Instagram/IGListKit) for more completeness.
 TEST(HeckelDiff, IGListKitWhenDiffingEmptyArraysThatResultHasNoChanges) {
 
-    std::vector<uint32_t> original {};
-    std::vector<uint32_t> updated {};
+    std::vector<size_t> original {};
+    std::vector<size_t> updated {};
 
-    auto expected = new std::vector<uint32_t> {};
+    auto expected = new std::vector<size_t> {};
 
-    testExpectations<uint32_t>(original, updated, expected, expected, expected, expected);
+    testExpectations<size_t>(original, updated, expected, expected, expected, expected);
 
     delete expected;
 }
 
 TEST(HeckelDiff, IGListKitWhenDiffingFromEmptyArrayThatResultHasChanges) {
 
-    std::vector<uint32_t> original {};
-    std::vector<uint32_t> updated {1};
+    std::vector<size_t> original {};
+    std::vector<size_t> updated {1};
 
-    auto expected = new std::vector<uint32_t> {1};
+    auto expected = new std::vector<size_t> {1};
 
-    testExpectations<uint32_t>(original, updated, expected, nullptr, nullptr, nullptr);
+    testExpectations<size_t>(original, updated, expected, nullptr, nullptr, nullptr);
 
     delete expected;
 }
 
 TEST(HeckelDiff, IGListKitWhenSwappingObjectsThatResultHasMoves) {
 
-    std::vector<uint32_t> original {1, 2};
-    std::vector<uint32_t> updated {2, 1};
+    std::vector<size_t> original {1, 2};
+    std::vector<size_t> updated {2, 1};
 
-    auto expected = new std::vector<uint32_t> {2, 1};
+    auto expected = new std::vector<size_t> {2, 1};
 
-    testExpectations<uint32_t>(original, updated, nullptr, nullptr, expected, nullptr);
+    testExpectations<size_t>(original, updated, nullptr, nullptr, expected, nullptr);
 
     delete expected;
 }
 
 TEST(HeckelDiff, IGListKitWhenMovingObjectsTogetherThatResultHasMoves) {
 
-    std::vector<uint32_t> original {1, 2, 3, 3, 4};
-    std::vector<uint32_t> updated {2, 3, 1, 3, 4};
+    std::vector<size_t> original {1, 2, 3, 3, 4};
+    std::vector<size_t> updated {2, 3, 1, 3, 4};
 
-    auto expected = new std::vector<uint32_t> {2, 3, 1};
+    auto expected = new std::vector<size_t> {2, 3, 1};
 
-    testExpectations<uint32_t>(original, updated, nullptr, nullptr, expected, nullptr);
+    testExpectations<size_t>(original, updated, nullptr, nullptr, expected, nullptr);
 
     delete expected;
 }
 
 TEST(HeckelDiff, IGListKitWhenDeletingItemsWithInsertsWithMovesThatResultHasInsertsMovesAndDeletes) {
 
-    std::vector<uint32_t> original {0, 1, 2, 3, 4, 5, 6, 7, 8};
-    std::vector<uint32_t> updated  {0, 2, 3, 4, 7, 6, 9, 5, 10};
+    std::vector<size_t> original {0, 1, 2, 3, 4, 5, 6, 7, 8};
+    std::vector<size_t> updated  {0, 2, 3, 4, 7, 6, 9, 5, 10};
 
-    auto expected_inserted = new std::vector<uint32_t> {9, 10};
-    auto expected_deleted = new std::vector<uint32_t> {1, 8};
-    auto expected_moved = new std::vector<uint32_t> {2, 3, 4, 7, 6, 5};
+    auto expected_inserted = new std::vector<size_t> {9, 10};
+    auto expected_deleted = new std::vector<size_t> {1, 8};
+    auto expected_moved = new std::vector<size_t> {2, 3, 4, 7, 6, 5};
 
-    testExpectations<uint32_t>(original, updated, expected_inserted, expected_deleted, expected_moved, nullptr);
+    testExpectations<size_t>(original, updated, expected_inserted, expected_deleted, expected_moved, nullptr);
 
     delete expected_inserted;
     delete expected_deleted;
