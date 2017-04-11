@@ -87,7 +87,6 @@ namespace HeckelDiff {
         static std::vector<T> populate_deleted_items(const std::vector<Record<T>> &oa);
         static auto populate_new_items(const std::vector<Record<T>> &na, const std::vector<Record<T>> &oa);
 
-    public:
         static void pass1(const std::vector<T> &n, std::unordered_map<T, std::unique_ptr<Entry>> &symbolTable, std::vector<Record<T>> &na);
 
         static void pass2(const std::vector<T> &o, std::unordered_map<T, std::unique_ptr<Entry>>&symbolTable, std::vector<Record<T>> &oa);
@@ -100,6 +99,7 @@ namespace HeckelDiff {
 
         static const std::unordered_map<std::string, std::vector<T>> pass6(std::vector<Record<T>> &na, std::vector<Record<T>> &oa);
 
+    public:
         auto diff(const std::vector<T> original, const std::vector<T> updated) {
 
             oa.reserve(original.size());

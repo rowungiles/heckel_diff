@@ -11,6 +11,7 @@
 #include <stack>
 #include <limits>
 #include <memory>
+#include <functional>
 
 namespace HeckelDiff {
 
@@ -99,7 +100,6 @@ namespace HeckelDiff {
         static const std::unordered_map<std::string, std::vector<T>> pass6(std::vector<Record<T>> &na, std::vector<Record<T>> &oa);
 
     public:
-
         auto diff(const std::vector<T> original, const std::vector<T> updated) {
 
             oa.reserve(original.size());
