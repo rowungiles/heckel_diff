@@ -3,7 +3,7 @@
  * http://documents.scribd.com/docs/10ro9oowpo1h81pgh1as.pdf
  */
 
-#include "heckel_diff.hpp"
+#include "../include/heckel_diff.hpp"
 #include <string>
 #include <unordered_map>
 #include <vector>

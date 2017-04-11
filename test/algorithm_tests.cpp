@@ -5,7 +5,7 @@
 #include <chrono>
 #include "gtest/gtest.h"
 #include <heckel_diff/heckel_diff.hpp>
-#include "helpers.hpp"
+#include "include/helpers.hpp"
 
 template <typename T>
 void checkExpectedType(const std::vector<T> *result, const std::vector<T> &actual) {

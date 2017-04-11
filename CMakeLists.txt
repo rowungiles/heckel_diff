@@ -10,8 +10,8 @@ ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     SET(CMAKE_CXX_FLAGS "-Wall -Werror -Wextra -std=c++14")
 ENDIF()
 
-set(LIB_NAME heckel_diff)
-set(BIN_NAME bin_heckel_diff)
+set(ENV{LIB_NAME} heckel_diff)
+set(ENV{BIN_NAME} bin_heckel_diff)
 
 add_subdirectory(src)
 add_subdirectory(test)

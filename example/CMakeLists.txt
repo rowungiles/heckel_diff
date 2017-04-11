@@ -6,7 +6,7 @@ set(SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/heckel_diff_example.cpp
         )
 
-find_library(${LIBRARY} ${LIB_NAME}
+find_library(${LIBRARY} $ENV{LIB_NAME}
         HINTS ${CMAKE_BINARY_DIR}/src)
 
 include_directories(${CMAKE_BINARY_DIR}/src/include)
