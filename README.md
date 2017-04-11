@@ -1,6 +1,6 @@
 # heckel-diff
 
-*WIP*
+- known bug around linking to projects
 
 Project for learning C++. Inspired by IGListKit (https://github.com/Instagram/IGListKit).
 
