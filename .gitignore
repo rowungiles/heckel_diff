@@ -159,3 +159,8 @@ xcuserdata/
 /.idea
 
 ouput/bin/
+
+cmake-build-debug/test/
+cmake-build-debug/example/
+cmake-build-release/test/
+cmake-build-release/example/
