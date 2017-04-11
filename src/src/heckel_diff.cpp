@@ -285,4 +285,7 @@ namespace HeckelDiff {
     template class Algorithm<size_t>;
     template struct Record<size_t>;
 
+    template class Algorithm<uint32_t>;
+    template struct Record<uint32_t>;
+
 }  // namespace HeckelDiff

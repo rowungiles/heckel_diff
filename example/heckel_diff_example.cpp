@@ -5,19 +5,22 @@
 #include <chrono>
 #include <iostream>
 #include <vector>
+#include <string>
 #include <heckel_diff/heckel_diff.hpp>
 
-template <typename T>
-static std::string vector_to_string(std::vector<T> vector) {
-
+std::ostream& operator<<(std::ostream& os, const std::vector<uint32_t> &vector)
+{
     std::string tmp = "";
 
-    for (const auto &item : vector) {
+    if (!vector.empty()) {
 
-        tmp += item;
+        for (const auto &item : vector) {
+
+            tmp += std::to_string(item) + " ";
+        }
     }
-
-    return tmp;
+    // write obj to stream
+    return os << tmp;
 }
 
 int main() {
@@ -35,14 +38,14 @@ int main() {
     auto unchanged = actual[HeckelDiff::UNCHANGED];
 
     std::cout << "\n"
-              << "\nInserted :"
-              << vector_to_string<uint32_t>(inserted)
+              << "\nInserted: "
+              << inserted
               << "\nDeleted: "
-              << vector_to_string<uint32_t>(deleted)
+              << deleted
               << "\nMoved: "
-              << vector_to_string<uint32_t>(moved)
+              << moved
               << "\nUnchanged: "
-              << vector_to_string<uint32_t>(unchanged)
+              << unchanged
               << "\n";
     return 0;
 }

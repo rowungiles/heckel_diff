@@ -16,9 +16,6 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
                  ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
 )
 
-find_library(${LIBRARY} $ENV{LIB_NAME}
-        HINTS ${CMAKE_BINARY_DIR}/src)
-
 include_directories(${CMAKE_BINARY_DIR}/src/include)
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
@@ -33,4 +30,7 @@ set(SOURCES
         )
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${INCLUDES})
-target_link_libraries(${PROJECT_NAME} gtest ${LIBRARY})
+
+set_target_properties($ENV{LIB_NAME} PROPERTIES IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/test)
+add_library($ENV{LIB_NAME}_test SHARED IMPORTED GLOBAL)
+target_link_libraries(${PROJECT_NAME} gtest $ENV{LIB_NAME})

@@ -6,10 +6,10 @@ set(SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/heckel_diff_example.cpp
         )
 
-find_library(${LIBRARY} $ENV{LIB_NAME}
-        HINTS ${CMAKE_BINARY_DIR}/src)
-
 include_directories(${CMAKE_BINARY_DIR}/src/include)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
-target_link_libraries(${PROJECT_NAME} ${LIBRARY})
+
+set_target_properties($ENV{LIB_NAME} PROPERTIES IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/example)
+add_library($ENV{LIB_NAME}_example SHARED IMPORTED GLOBAL)
+target_link_libraries(${PROJECT_NAME} $ENV{LIB_NAME})

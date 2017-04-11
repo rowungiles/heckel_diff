@@ -24,10 +24,6 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/heckel_diff.hpp ${CMAKE_BINARY_DIR}/src/include/heckel_diff/heckel_diff.hpp COPYONLY)
 
-set(INCLUDES
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/heckel_diff.hpp
-        )
-
 set(SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/heckel_diff.cpp
@@ -39,4 +35,4 @@ set(LIB_SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/src/heckel_diff.cpp
         )
 
-add_library($ENV{LIB_NAME} ${LIB_SOURCES} ${SOURCES})
+add_library($ENV{LIB_NAME} SHARED ${LIB_SOURCES})
