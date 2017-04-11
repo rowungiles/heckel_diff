@@ -11,7 +11,7 @@ ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 ENDIF()
 
 set(ENV{LIB_NAME} heckel_diff)
-set(ENV{BIN_NAME} bin_heckel_diff)
+set(ENV{BIN_NAME} heckel_diff_bin)
 
 add_subdirectory(src)
 add_subdirectory(test)

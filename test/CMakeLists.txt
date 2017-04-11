@@ -32,5 +32,5 @@ set(SOURCES
 add_executable(${PROJECT_NAME} ${SOURCES} ${INCLUDES})
 
 set_target_properties($ENV{LIB_NAME} PROPERTIES IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/test)
-add_library($ENV{LIB_NAME}_test SHARED IMPORTED GLOBAL)
+add_library($ENV{LIB_NAME}lib_test SHARED IMPORTED GLOBAL)
 target_link_libraries(${PROJECT_NAME} gtest $ENV{LIB_NAME})
