@@ -22,6 +22,8 @@ endif()
 
 include_directories(${PROJECT_SOURCE_DIR}/src)
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/heckel_diff.hpp ${CMAKE_BINARY_DIR}/src/include/heckel_diff/heckel_diff.hpp COPYONLY)
+
 set(LIB_SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/src/heckel_diff.cpp
         )
