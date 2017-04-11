@@ -156,11 +156,7 @@ xcuserdata/
 
 # End of https://www.gitignore.io/api/c++,cmake,xcode,clion,macos
 /cmake-build-debug
+/cmake-build-release
 /.idea
 
 ouput/bin/
-
-cmake-build-debug/test/
-cmake-build-debug/example/
-cmake-build-release/test/
-cmake-build-release/example/
