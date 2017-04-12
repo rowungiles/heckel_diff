@@ -42,13 +42,14 @@ namespace HeckelDiff {
             LineNumber
         };
 
+        T value {};
         Entry *entry = nullptr;
-
-        T value;
         Type type = SymbolTableEntry;
 
 
-        Record<T>(Entry *entry, const T value) : entry(entry), value(value) {
+        Record<T>() {}
+
+        Record<T>(const T value, Entry *entry) : value(value), entry(entry) {
             type = SymbolTableEntry;
         }
 
@@ -102,8 +103,8 @@ namespace HeckelDiff {
     public:
         auto diff(const std::vector<T> original, const std::vector<T> updated) {
 
-            oa.reserve(original.size());
-            na.reserve(updated.size());
+            oa.resize(original.size());
+            na.resize(updated.size());
 
             pass1(updated, symbol_table, na);
             pass2(original, symbol_table, oa);

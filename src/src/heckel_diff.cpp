@@ -14,7 +14,7 @@
 #include <tuple>
 
 namespace HeckelDiff {
-
+    
     // Pass 1 & 2: Index the items being diffed
     template<typename T>
     void Algorithm<T>::index_item(const T &item,
@@ -49,16 +49,20 @@ namespace HeckelDiff {
                              std::unordered_map<T, std::unique_ptr<Entry>> &symbol_table,
                              std::vector<Record<T>> &na) {
 
-        std::function<void(Entry *&entry, const T &item)> l = [&na](Entry *&entry, const T &l_item) {
+        size_t i = 0;
+
+        std::function<void(Entry *&entry, const T &item)> l = [&na, &i](Entry *&entry, const T &l_item) {
 
             entry->nc += 1;
             entry->all_old_indexes.push(NotFound);
 
-            na.push_back(Record<T>(entry, l_item));
+            na[i] = Record<T>(l_item, entry);
+
+            i += 1;
         };
 
-        for (const auto &item : n) {
-            index_item(item, symbol_table, l);
+        for (auto it = n.begin(); n.end() > it; it += 1) {
+            index_item(n[i], symbol_table, l);
         }
     }
 
@@ -73,15 +77,15 @@ namespace HeckelDiff {
         std::function<void(Entry *&entry, const T &item)> l = [&oa, &i](Entry *&entry, const T &l_item) {
 
             entry->oc += 1;
-            entry->all_old_indexes.push(i);
+            entry->all_old_indexes. push(i);
 
-            oa.push_back(Record<T>(entry, l_item));
+            oa[i] = Record<T>(l_item, entry);
 
             i += 1;
         };
 
         // go backwards to preserve the order of stack indexes
-        for (auto it = o.end(); o.begin() != it; --it) {
+        for (auto it = o.end(); o.begin() != it; it -= 1) {
             index_item(o[i], symbol_table, l);
         }
     }

@@ -43,7 +43,7 @@ void testExpectations(const std::vector<T> &original, const std::vector<T> &upda
 
     if (is_timed) {
 
-        uint32_t samples = 3;
+        uint32_t samples = 10;
 
         auto sum_cputime_ms = 0.0;
         auto sum_wallclock_ms = 0.0;
@@ -191,7 +191,7 @@ TEST(HeckelDiff, Benchmark) {
 
     std::vector<size_t> original{};
 
-    for (size_t i = 0; i < 5000; i+=1) {
+    for (size_t i = 0; i < 6700; i+=1) {
         original.push_back(i);
     }
 
