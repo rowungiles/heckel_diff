@@ -27,7 +27,7 @@ The `Algorithm<T>` currently accepts `std::string`, `size_t` and `uint32_t`
 ### Notes
 Even though the intention is for a library project, the `src/` folder has an binary and a `main.cpp`. If the above commands are run on Linux, a valgrind target will be available that runs against the reference manual string example. 
 
-The tests have a wall_clock and cpu_clock (`TEST(HeckelDiff, Benchmark)`) test set to expect 5000 diffs to run in no greater than wall_clock 16.67ms (60fps). You may have to adjust this as your computer requires.
+The tests have a wall_clock and cpu_clock (`TEST(HeckelDiff, Benchmark)`) test set to expect 6700 diffs to run in no greater than wall_clock 16.67ms (60fps). You may have to adjust this as your computer requires.
 
 I use some of the non NSIndexPath test conditions from IGListKit (https://github.com/Instagram/IGListKit).
 
