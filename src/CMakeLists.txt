@@ -1,38 +1,13 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.11)
 
-project(heckel_diff)
+project(heckel_diff_lib)
 
-find_program(MEMORYCHECK_COMMAND valgrind)
-if(MEMORYCHECK_COMMAND)
-    message("Valgrind: ${MEMORYCHECK_COMMAND}")
-    set(MEMORYCHECK_COMMAND_OPTIONS "--trace-children=yes --leak-check=full")
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-    include(CTest)
+set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/diffing/heckel_diff.cpp)
 
-    add_custom_target(valgrind
-            COMMAND ${CMAKE_CTEST_COMMAND}
-            --force-new-ctest-process --test-action memcheck
-            COMMAND cat "${CMAKE_BINARY_DIR}/test/tmp/MemoryChecker.*.log")
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 
-    add_test(valgrind $ENV{BIN_NAME})
-
-else()
-    message("Valgrind not found")
-endif()
-
-include_directories(${PROJECT_SOURCE_DIR}/include)
-
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/heckel_diff.hpp ${CMAKE_BINARY_DIR}/src/include/heckel_diff/heckel_diff.hpp COPYONLY)
-
-set(SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/heckel_diff.cpp
-        )
-
-add_executable($ENV{BIN_NAME} ${SOURCES} ${INCLUDES})
-
-set(LIB_SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/heckel_diff.cpp
-        )
-
-add_library($ENV{LIB_NAME} SHARED ${LIB_SOURCES})
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)

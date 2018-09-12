@@ -6,7 +6,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <heckel_diff/heckel_diff.hpp>
+
+#include "heckel_diff.hpp"
 
 std::ostream& operator<<(std::ostream& os, const std::vector<uint32_t> &vector)
 {

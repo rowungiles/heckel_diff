@@ -2,8 +2,8 @@
  * Copyright 2017 Rowun Giles - http://github.com/rowungiles
  */
 
-#include "include/heckel_diff.hpp"
-#include "../test/include/helpers.hpp"
+#include "heckel_diff.hpp"
+#include "helpers.hpp"
 
 int main() {
 

@@ -4,8 +4,8 @@
 
 #include <chrono>
 #include "gtest/gtest.h"
-#include <heckel_diff/heckel_diff.hpp>
-#include "include/helpers.hpp"
+#include "heckel_diff.hpp"
+#include "helpers.hpp"
 
 template <typename T>
 void checkExpectedType(const std::vector<T> *result, const std::vector<T> &actual) {
@@ -191,7 +191,7 @@ TEST(HeckelDiff, Benchmark) {
 
     std::vector<size_t> original{};
 
-    for (size_t i = 0; i < 6700; i+=1) {
+    for (size_t i = 0; i < 16000; i+=1) {
         original.push_back(i);
     }
 
